@@ -20,39 +20,43 @@ async def connect(connection):
     lootChampionsValue = {}
     for item in loot:
         if item["type"] == "CHAMPION_RENTAL":
-            lootChampionsValue[item['storeItemId']
-                               ] = item['upgradeEssenceValue']
+            lootChampionsValue[item['storeItemId']] = {'upgrade': item['upgradeEssenceValue'], 'disenchant': item['disenchantValue']}
 
     storeCatalogRes = await connection.request('get', '/lol-store/v1/catalog')
     storeCatalog = await storeCatalogRes.json()
 
     totalPrice = 0
+    totaldisenchant = 0
     totalPriceWithoutLoot = 0
     championsToBuyCount = 0
-    print('Name\t\tID\tStore Price\tLoot Price')
+    print('Name\t\tID\tStore Price\tLoot Price\tDisenchant Value')
     for item in storeCatalog:
 
         itemId = item['itemId']
-        if item["inventoryType"] == "CHAMPION" and not championsOwnedStatus[itemId]:
-            championsToBuyCount += 1
-            print(item['localizations'][list(
-                item['localizations'].keys())[0]]['name'], end='')
-            print('\t\t', itemId, end='')
+        if item["inventoryType"] == "CHAMPION":
+            if not championsOwnedStatus[itemId]:
+                championsToBuyCount += 1
+                print(item['localizations'][list(
+                    item['localizations'].keys())[0]]['name'], end='')
+                print('\t\t', itemId, end='')
 
-            itemPrice = None
-            for price in item['prices']:
-                if price['currency'] == 'IP':
-                    itemPrice = price['cost']
-                    break
-            totalPriceWithoutLoot += itemPrice
-            print('\t', itemPrice, end='')
-            print('\t\t', lootChampionsValue[itemId]
-                  if itemId in lootChampionsValue else None)
-            totalPrice += lootChampionsValue[itemId] if itemId in lootChampionsValue else itemPrice
+                itemPrice = None
+                for price in item['prices']:
+                    if price['currency'] == 'IP':
+                        itemPrice = price['cost']
+                        break
+                totalPriceWithoutLoot += itemPrice
+                print('\t', itemPrice, end='')
+                print('\t\t', lootChampionsValue[itemId]['upgrade'] if itemId in lootChampionsValue else None,"\t",lootChampionsValue[itemId]['disenchant']
+                    if itemId in lootChampionsValue else None)
+                totalPrice += lootChampionsValue[itemId]['upgrade'] if itemId in lootChampionsValue else itemPrice
+            else:
+                totaldisenchant += lootChampionsValue[itemId]['disenchant'] if itemId in lootChampionsValue else 0
 
     print('------------------------------------------------------------------')
     print('Total Price Without Loot:\t', '{:,}'.format(totalPriceWithoutLoot))
     print('Total Price:\t\t\t', '{:,}'.format(totalPrice))
+    print('Total Disemchant value:\t\t', '{:,}'.format(totaldisenchant))
     print('Champions To Buy:\t\t', championsToBuyCount)
 
 
