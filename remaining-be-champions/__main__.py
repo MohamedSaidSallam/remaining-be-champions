@@ -26,7 +26,7 @@ async def connect(connection):
     storeCatalog = await storeCatalogRes.json()
 
     totalPrice = 0
-    totaldisenchant = 0
+    totalExtraShardsDisenchant = 0
     totalPriceWithoutLoot = 0
     championsToBuyCount = 0
     print('Name\t\tID\tStore Price\tLoot Price\tDisenchant Value')
@@ -47,16 +47,16 @@ async def connect(connection):
                         break
                 totalPriceWithoutLoot += itemPrice
                 print('\t', itemPrice, end='')
-                print('\t\t', lootChampionsValue[itemId]['upgrade'] if itemId in lootChampionsValue else None,"\t",lootChampionsValue[itemId]['disenchant']
+                print('\t\t', lootChampionsValue[itemId]['upgrade'] if itemId in lootChampionsValue else None,"\t\t",lootChampionsValue[itemId]['disenchant']
                     if itemId in lootChampionsValue else None)
                 totalPrice += lootChampionsValue[itemId]['upgrade'] if itemId in lootChampionsValue else itemPrice
             else:
-                totaldisenchant += lootChampionsValue[itemId]['disenchant'] if itemId in lootChampionsValue else 0
+                totalExtraShardsDisenchant += lootChampionsValue[itemId]['disenchant'] if itemId in lootChampionsValue else 0
 
     print('------------------------------------------------------------------')
     print('Total Price Without Loot:\t', '{:,}'.format(totalPriceWithoutLoot))
     print('Total Price:\t\t\t', '{:,}'.format(totalPrice))
-    print('Total Disemchant value:\t\t', '{:,}'.format(totaldisenchant))
+    print('Extra Shards Disenchant value:\t', '{:,}'.format(totalExtraShardsDisenchant))
     print('Champions To Buy:\t\t', championsToBuyCount)
 
 
